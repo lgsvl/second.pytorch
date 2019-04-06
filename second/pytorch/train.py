@@ -237,6 +237,8 @@ def train(config_path,
         total_loop -= 1
     mixed_optimizer.zero_grad()
     try:
+        num_epochs = 0
+        t0 = time.time()
         for _ in range(total_loop):
             if total_step_elapsed + train_cfg.steps_per_eval > train_cfg.steps:
                 steps = train_cfg.steps % train_cfg.steps_per_eval
@@ -247,7 +249,9 @@ def train(config_path,
                 try:
                     example = next(data_iter)
                 except StopIteration:
-                    print("end epoch")
+                    num_epochs += 1
+                    print("end epoch {} in {:.3f} s ({} / {} steps)".format(num_epochs, time.time() - t0, step, steps))
+                    t0 = time.time()
                     if clear_metrics_every_epoch:
                         net.clear_metrics()
                     data_iter = iter(dataloader)
