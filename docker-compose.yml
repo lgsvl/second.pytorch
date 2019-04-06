@@ -10,7 +10,7 @@ services:
       - ${HOME}/.Xauthority:/tmp/.Xauthority
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/root/second.pytorch
-      - /media/david/kitti/lgsvl-10000:/root/data
+      - /media/david/kitti/mix:/root/data
       - /media/david/kitti/second/kitti/testing:/root/data/kitti/testing
       - ${HOME}/pretrained_models_v1.5:/root/model
     environment:
