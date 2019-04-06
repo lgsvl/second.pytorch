@@ -10,6 +10,8 @@ from second.core import box_np_ops
 from second.data import kitti_common as kitti
 from second.utils.progress_bar import list_bar as prog_bar
 
+import time
+
 def _read_imageset_file(path):
     with open(path, 'r') as f:
         lines = f.readlines()
@@ -54,8 +56,9 @@ def create_kitti_info_file(data_path,
                            save_path=None,
                            create_trainval=False,
                            relative_path=True):
-    train_img_ids = _read_imageset_file("./data/ImageSets/train.txt")
-    val_img_ids = _read_imageset_file("./data/ImageSets/val.txt")
+    t0 = time.time()
+    train_img_ids = _read_imageset_file("/root/data/kitti/training/train.txt")
+    val_img_ids = _read_imageset_file("/root/data/kitti/training/val.txt")
     trainval_img_ids = _read_imageset_file("./data/ImageSets/trainval.txt")
     test_img_ids = _read_imageset_file("./data/ImageSets/test.txt")
 
@@ -120,6 +123,8 @@ def create_kitti_info_file(data_path,
     with open(filename, 'wb') as f:
         pickle.dump(kitti_infos_test, f)
 
+    print("Elapsed time: {:.3f} s".format(time.time() - t0))
+
 
 def _create_reduced_point_cloud(data_path,
                                 info_path,
@@ -163,6 +168,7 @@ def create_reduced_point_cloud(data_path,
                                test_info_path=None,
                                save_path=None,
                                with_back=False):
+    t0 = time.time()
     if train_info_path is None:
         train_info_path = pathlib.Path(data_path) / 'kitti_infos_train.pkl'
     if val_info_path is None:
@@ -181,6 +187,8 @@ def create_reduced_point_cloud(data_path,
         _create_reduced_point_cloud(
             data_path, test_info_path, save_path, back=True)
 
+    print("Elapsed time: {:.3f} s".format(time.time() - t0))
+
 
 def create_groundtruth_database(data_path,
                                 info_path=None,
@@ -191,6 +199,7 @@ def create_groundtruth_database(data_path,
                                 lidar_only=False,
                                 bev_only=False,
                                 coors_range=None):
+    t0 = time.time()
     root_path = pathlib.Path(data_path)
     if info_path is None:
         info_path = root_path / 'kitti_infos_train.pkl'
@@ -288,6 +297,8 @@ def create_groundtruth_database(data_path,
 
     with open(db_info_save_path, 'wb') as f:
         pickle.dump(all_db_infos, f)
+
+    print("Elapsed time: {:.3f} s".format(time.time() - t0))
 
 
 if __name__ == '__main__':
