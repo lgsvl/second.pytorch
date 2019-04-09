@@ -237,8 +237,7 @@ def train(config_path,
         total_loop -= 1
     mixed_optimizer.zero_grad()
     try:
-        num_epochs = 0
-        t0 = time.time()
+        t0_epoch = time.time()
         for _ in range(total_loop):
             if total_step_elapsed + train_cfg.steps_per_eval > train_cfg.steps:
                 steps = train_cfg.steps % train_cfg.steps_per_eval
@@ -249,9 +248,9 @@ def train(config_path,
                 try:
                     example = next(data_iter)
                 except StopIteration:
-                    num_epochs += 1
-                    print("end epoch {} in {:.3f} s ({} / {} steps)".format(num_epochs, time.time() - t0, step, steps))
-                    t0 = time.time()
+                    num_epochs = (net.get_global_step() * input_cfg.batch_size) // len(dataset)
+                    print("end epoch {} in {:.3f} s".format(num_epochs, time.time() - t0_epoch))
+                    t0_epoch = time.time()
                     if clear_metrics_every_epoch:
                         net.clear_metrics()
                     data_iter = iter(dataloader)
@@ -618,7 +617,6 @@ def evaluate(config_path,
         num_workers=0,# input_cfg.num_workers,
         pin_memory=False,
         collate_fn=merge_second_batch)
-
     if train_cfg.enable_mixed_precision:
         float_dtype = torch.float16
     else:
