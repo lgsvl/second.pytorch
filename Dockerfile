@@ -59,8 +59,8 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 # pytorch
 # ------------------------------------------------------------------
     $PIP_INSTALL \
-        torch_nightly -f \
-        https://download.pytorch.org/whl/nightly/cu90/torch_nightly.html \
+        torch==1.0 -f \
+        https://download.pytorch.org/whl/cu90/stable \
         && \
     $PIP_INSTALL \
         torchvision_nightly \
@@ -89,7 +89,7 @@ RUN apt-get purge -y cmake && \
 # Install python packages
 RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
     $PIP_INSTALL \
-        shapely fire pybind11 tensorboardX protobuf scikit-image numba pillow flask flask_cors
+        shapely fire pybind11 tensorboardX protobuf scikit-image numba==0.43.0 pillow flask flask_cors
 
 WORKDIR /root
 
@@ -102,7 +102,7 @@ RUN rm -rf ./boost_1_68_0.tar.gz
 
 # Install spconv
 RUN git clone https://github.com/traveller59/spconv.git --recursive
-RUN cd ./spconv && python setup.py bdist_wheel
+RUN cd ./spconv && git checkout 10db9b6701a88f4fb8fa163760e40fca51e8eb0f && python setup.py bdist_wheel
 RUN pip install /root/spconv/dist/spconv-1.0-cp36-cp36m-linux_x86_64.whl && \
     rm -rf /root/spconv
 

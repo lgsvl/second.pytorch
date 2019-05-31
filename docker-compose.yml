@@ -1,5 +1,4 @@
 version: "2.4"
-
 services:
   second:
     build:
@@ -10,10 +9,9 @@ services:
       - ${HOME}/.Xauthority:/tmp/.Xauthority
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/root/second.pytorch
-      - /media/david/kitti/dataset/hybrid_v2:/root/data
-      - /media/david/kitti/splitset/lgsvl_only:/root/data/kitti
-      - /media/david/kitti/second/kitti/testing:/root/data/kitti/testing
-      - ${HOME}/pretrained_models_v1.5:/root/model
+      - /mnt/smb/kitti/training/hybrid_v4:/root/data
+      - /mnt/hdd/kitti/testset:/root/data/kitti/testing
+      - /mnt/smb/kitti/model:/root/model
     environment:
       - DISPLAY
       - QT_X11_NO_MITSHM=1
