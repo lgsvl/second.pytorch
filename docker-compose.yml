@@ -3,13 +3,37 @@ services:
   second:
     build:
       context: .
-    image: second-pytorch:v1.5
+    image: second-pytorch:latest
     container_name: second
     volumes:
       - ${HOME}/.Xauthority:/tmp/.Xauthority
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/root/second.pytorch
-      - /mnt/smb/kitti/training/hybrid_v4:/root/data
+      - /mnt/smb/kitti/training/kitti:/root/data
+      - /mnt/hdd/kitti/testset:/root/data/kitti/testing
+      - /mnt/smb/kitti/model:/root/model
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - LIBOVERLAY_SCROLLBAR=0
+      - GTK2_RC_FILES=/usr/share/themes/Adwaita/gtk-2.0/gtkrc
+      - GTK_THEME=Adwaita
+      - XAUTHORITY=/tmp/.Xauthority
+    runtime: nvidia
+    network_mode: host
+    init: true
+    privileged: true
+
+  second-1.5:
+    build:
+      context: .
+    image: second-pytorch:v1.5
+    container_name: second-1.5
+    volumes:
+      - ${HOME}/.Xauthority:/tmp/.Xauthority
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - .:/root/second.pytorch
+      - /mnt/smb/kitti/training/kitti:/root/data
       - /mnt/hdd/kitti/testset:/root/data/kitti/testing
       - /mnt/smb/kitti/model:/root/model
     environment:
