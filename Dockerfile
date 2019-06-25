@@ -115,7 +115,7 @@ ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
 ENV PYTHONPATH=/root/second.pytorch
 
 VOLUME ["/root/second.pytorch"]
-VOLUME ["/root/data"]
+VOLUME ["/root/data/kitti"]
 VOLUME ["/root/model"]
 
 WORKDIR /root/second.pytorch/second

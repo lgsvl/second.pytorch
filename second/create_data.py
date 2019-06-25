@@ -11,6 +11,7 @@ from second.data import kitti_common as kitti
 from second.utils.progress_bar import list_bar as prog_bar
 
 import time
+from os import path
 
 def _read_imageset_file(path):
     with open(path, 'r') as f:
@@ -66,30 +67,42 @@ def create_kitti_info_file(data_path,
         save_path = pathlib.Path(data_path)
     else:
         save_path = pathlib.Path(save_path)
-    kitti_infos_train = kitti.get_kitti_image_info(
-        data_path,
-        training=True,
-        velodyne=True,
-        calib=True,
-        image_ids=train_img_ids,
-        relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
-    filename = save_path / 'kitti_infos_train.pkl'
-    print(f"Kitti info train file is saved to {filename}")
-    with open(filename, 'wb') as f:
-        pickle.dump(kitti_infos_train, f)
-    kitti_infos_val = kitti.get_kitti_image_info(
-        data_path,
-        training=False,
-        velodyne=True,
-        calib=True,
-        image_ids=val_img_ids,
-        relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
-    filename = save_path / 'kitti_infos_val.pkl'
-    print(f"Kitti info val file is saved to {filename}")
-    with open(filename, 'wb') as f:
-        pickle.dump(kitti_infos_val, f)
+
+    # kitti_infos_train.pkl
+    filename = save_path / 'training/kitti_infos_train.pkl'
+    if path.exists(filename):
+        print("{} already exists".format(filename))
+    else:
+        kitti_infos_train = kitti.get_kitti_image_info(
+            data_path,
+            training=True,
+            velodyne=True,
+            calib=True,
+            image_ids=train_img_ids,
+            relative_path=relative_path)
+        _calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
+        print(f"Kitti info train file is saved to {filename}")
+        with open(filename, 'wb') as f:
+            pickle.dump(kitti_infos_train, f)
+
+    # kitti_infos_val.pkl
+    filename = save_path / 'testing/kitti_infos_val.pkl'
+    if path.exists(filename):
+        print("{} already exists".format(filename))
+    else:
+        kitti_infos_val = kitti.get_kitti_image_info(
+            data_path,
+            training=False,
+            velodyne=True,
+            calib=True,
+            image_ids=val_img_ids,
+            relative_path=relative_path)
+        _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
+        print(f"Kitti info val file is saved to {filename}")
+        with open(filename, 'wb') as f:
+            pickle.dump(kitti_infos_val, f)
+
+    # kitti_infos_trainval.pkl
     """
     if create_trainval:
         kitti_infos_trainval = kitti.get_kitti_image_info(
@@ -109,6 +122,7 @@ def create_kitti_info_file(data_path,
     # with open(filename, 'wb') as f:
     #     pickle.dump(kitti_infos_train + kitti_infos_val, f)
 
+    # kitti_infos_test.pkl
     # kitti_infos_test = kitti.get_kitti_image_info(
     #     data_path,
     #     training=False,
@@ -169,9 +183,9 @@ def create_reduced_point_cloud(data_path,
                                with_back=False):
     t0 = time.time()
     if train_info_path is None:
-        train_info_path = pathlib.Path(data_path) / 'kitti_infos_train.pkl'
+        train_info_path = pathlib.Path(data_path) / 'training/kitti_infos_train.pkl'
     if val_info_path is None:
-        val_info_path = pathlib.Path(data_path) / 'kitti_infos_val.pkl'
+        val_info_path = pathlib.Path(data_path) / 'testing/kitti_infos_val.pkl'
     # if test_info_path is None:
     #     test_info_path = pathlib.Path(data_path) / 'kitti_infos_test.pkl'
 
@@ -201,13 +215,13 @@ def create_groundtruth_database(data_path,
     t0 = time.time()
     root_path = pathlib.Path(data_path)
     if info_path is None:
-        info_path = root_path / 'kitti_infos_train.pkl'
+        info_path = root_path / 'training/kitti_infos_train.pkl'
     if database_save_path is None:
-        database_save_path = root_path / 'gt_database'
+        database_save_path = root_path / 'training/gt_database'
     else:
         database_save_path = pathlib.Path(database_save_path)
     if db_info_save_path is None:
-        db_info_save_path = root_path / "kitti_dbinfos_train.pkl"
+        db_info_save_path = root_path / "training/kitti_dbinfos_train.pkl"
     database_save_path.mkdir(parents=True, exist_ok=True)
     with open(info_path, 'rb') as f:
         kitti_infos = pickle.load(f)
@@ -249,7 +263,7 @@ def create_groundtruth_database(data_path,
             assert coors_range is not None
             rbbox_lidar[:, 2] = coors_range[2]
             rbbox_lidar[:, 5] = coors_range[5] - coors_range[2]
-        
+
         group_dict = {}
         group_ids = np.full([bboxes.shape[0]], -1, dtype=np.int64)
         if "group_ids" in annos:
