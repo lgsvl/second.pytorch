@@ -164,7 +164,7 @@ class DataBaseSamplerV2:
             s_points_list = []
             for info in sampled:
                 s_points = np.fromfile(
-                    str(pathlib.Path(root_path) / info["path"]),
+                    str(pathlib.Path(root_path) / "training" / info["path"]),
                     dtype=np.float32)
                 s_points = s_points.reshape([-1, num_point_features])
                 # if not add_rgb_to_points:
